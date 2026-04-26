@@ -19,6 +19,29 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  // Password strength calculation
+  const calculatePasswordStrength = (password: string) => {
+    let strength = 0;
+    const checks = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      numbers: /\d/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    strength = Object.values(checks).filter(Boolean).length;
+
+    return {
+      strength,
+      checks,
+      label: strength <= 2 ? 'Weak' : strength <= 3 ? 'Fair' : strength <= 4 ? 'Good' : 'Strong',
+      color: strength <= 2 ? 'red' : strength <= 3 ? 'yellow' : strength <= 4 ? 'blue' : 'green'
+    };
+  };
+
+  const passwordStrength = calculatePasswordStrength(formData.password);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -196,6 +219,75 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="••••••••"
             />
+            
+            {formData.password && (
+              <div className="mt-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-600">Password strength:</span>
+                  <span className={`text-xs font-medium ${
+                    passwordStrength.color === 'red' ? 'text-red-600' :
+                    passwordStrength.color === 'yellow' ? 'text-yellow-600' :
+                    passwordStrength.color === 'blue' ? 'text-blue-600' :
+                    'text-green-600'
+                  }`}>
+                    {passwordStrength.label}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      passwordStrength.color === 'red' ? 'bg-red-500' :
+                      passwordStrength.color === 'yellow' ? 'bg-yellow-500' :
+                      passwordStrength.color === 'blue' ? 'bg-blue-500' :
+                      'bg-green-500'
+                    }`}
+                    style={{ width: `${(passwordStrength.strength / 5) * 100}%` }}
+                  />
+                </div>
+                <div className="mt-2 space-y-1">
+                  <div className="flex items-center text-xs">
+                    <span className={`w-3 h-3 rounded-full mr-2 ${
+                      passwordStrength.checks.length ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    <span className={passwordStrength.checks.length ? 'text-green-700' : 'text-gray-500'}>
+                      At least 8 characters
+                    </span>
+                  </div>
+                  <div className="flex items-center text-xs">
+                    <span className={`w-3 h-3 rounded-full mr-2 ${
+                      passwordStrength.checks.lowercase ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    <span className={passwordStrength.checks.lowercase ? 'text-green-700' : 'text-gray-500'}>
+                      Lowercase letter
+                    </span>
+                  </div>
+                  <div className="flex items-center text-xs">
+                    <span className={`w-3 h-3 rounded-full mr-2 ${
+                      passwordStrength.checks.uppercase ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    <span className={passwordStrength.checks.uppercase ? 'text-green-700' : 'text-gray-500'}>
+                      Uppercase letter
+                    </span>
+                  </div>
+                  <div className="flex items-center text-xs">
+                    <span className={`w-3 h-3 rounded-full mr-2 ${
+                      passwordStrength.checks.numbers ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    <span className={passwordStrength.checks.numbers ? 'text-green-700' : 'text-gray-500'}>
+                      Number
+                    </span>
+                  </div>
+                  <div className="flex items-center text-xs">
+                    <span className={`w-3 h-3 rounded-full mr-2 ${
+                      passwordStrength.checks.special ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    <span className={passwordStrength.checks.special ? 'text-green-700' : 'text-gray-500'}>
+                      Special character
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
