@@ -19,6 +19,7 @@ import { PrismaClient, UserStatus, UserRole } from '@prisma/client';
 import { AnalyticsService } from './services/AnalyticsService';
 import { performanceMonitor } from './services/performanceMonitoring';
 import { logger } from './services/logger';
+import ConnectionPoolManager from './databases/ConnectionPoolManager';
 
 const app = express();
 
@@ -41,6 +42,9 @@ if (process.env.SENTRY_DSN) {
 // Initialize services
 const analyticsService = new AnalyticsService();
 const prisma = new PrismaClient();
+
+// Initialize Connection Pool Manager
+ConnectionPoolManager.startHealthMonitoring(60000); // Monitor every minute
 
 // Initialize controllers
 const authController = new AuthenticationController();
@@ -262,6 +266,34 @@ app.delete('/api/cache', authenticate, authorize(UserRole.SUPER_ADMIN), async (r
     res.json({ message: 'Cache cleared successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to clear cache' });
+  }
+});
+
+// Connection Pool Management endpoints
+app.get('/api/connection-pool/stats', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
+  try {
+    const stats = await ConnectionPoolManager.getAllPoolStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get connection pool stats' });
+  }
+});
+
+app.get('/api/connection-pool/health', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
+  try {
+    const healthChecks = await ConnectionPoolManager.getAllHealthChecks();
+    res.json(healthChecks);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get connection pool health' });
+  }
+});
+
+app.get('/api/connection-pool/performance', authenticate, authorize(UserRole.ADMIN), async (req, res) => {
+  try {
+    const metrics = await ConnectionPoolManager.getPerformanceMetrics();
+    res.json(metrics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get connection pool performance metrics' });
   }
 });
 
