@@ -4,7 +4,7 @@
     "@apollo/server-plugin-landing-page-graphql-playground": "^4.0.0",
     "@graphql-tools/schema": "^10.0.0",
     "@graphql-tools/utils": "^10.0.0",
-    "@graphql-upload/graphql-upload": "^15.0.0",
+    "graphql-upload": "^15.0.0",
     "@stellar/freighter-api": "^6.0.1",
     "@stellar/stellar-sdk": "^14.5.0",
     "amqplib": "^0.10.3",
@@ -56,11 +56,8 @@
     "@opentelemetry/instrumentation-http": "^0.45.0",
     "@opentelemetry/instrumentation-express": "^0.34.0",
     "@prisma/instrumentation": "^5.6.0",
-    "prom-client": "^15.0.0",
-<<<<<<< HEAD:backend/package.json
-=======
+    "prom-client": "^14.2.0",
     "isomorphic-dompurify": "^2.0.0",
->>>>>>> fix/caching-error-handling-performance:package.json
     "ws": "^8.14.2",
     "ethers": "^6.8.0",
     "web3": "^4.2.0",
@@ -70,17 +67,7 @@
     "useragent": "^2.3.0",
     "@aws-sdk/client-s3": "^3.400.0",
     "@aws-sdk/client-cloudwatch": "^3.400.0",
-    "@aws-sdk/client-ses": "^3.400.0",
-<<<<<<< HEAD:backend/package.json
-    "rss": "^1.2.2",
-    "csv-writer": "^1.6.0",
-    "xlsx": "^0.18.5",
-    "jspdf": "^2.5.1",
-    "html2canvas": "^1.4.1",
-    "exceljs": "^4.4.0"
-=======
-    "rss": "^1.2.2"
->>>>>>> fix/caching-error-handling-performance:package.json
+    "@aws-sdk/client-ses": "^3.400.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -120,14 +107,6 @@
     "eslint": "^8.55.0",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
-    "@types/jest-environment-jsdom": "^29.5.1",
-    "@types/performance-now": "^2.0.2",
-<<<<<<< HEAD:backend/package.json
-    "@types/web3": "^1.2.2",
-    "@types/rss": "^0.0.32",
-    "@types/xlsx": "^0.0.36"
-=======
-    "@types/isomorphic-dompurify": "^2.0.0",
     "cypress": "^13.6.0",
     "cypress-visual-regression": "^5.0.0",
     "cypress-mochawesome-reporter": "^3.6.0",
@@ -136,7 +115,6 @@
     "@playwright/test": "^1.40.0",
     "@types/web3": "^1.2.2",
     "@types/rss": "^0.0.32"
->>>>>>> fix/caching-error-handling-performance:package.json
   },
   "scripts": {
     "dev": "ts-node server.ts",
