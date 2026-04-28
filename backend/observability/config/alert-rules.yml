@@ -226,3 +226,107 @@ groups:
         annotations:
           summary: "Unusual error rate detected"
           description: "Error rate on {{ $labels.service }} deviates significantly from normal"
+
+  - name: performance_alerts
+    interval: 30s
+    rules:
+      # High Memory Usage per Service
+      - alert: HighMemoryUsageService
+        expr: process_resident_memory_bytes{job=~"user-service|payment-service|billing-service|notification-service|document-service|utility-service|analytics-service|webhook-service"} / 1024 / 1024 / 1024 > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High memory usage on {{ $labels.job }}"
+          description: "Memory usage is {{ $value | humanize }}GB on {{ $labels.job }}"
+
+      # High CPU Usage per Service
+      - alert: HighCPUService
+        expr: rate(process_cpu_seconds_total{job=~"user-service|payment-service|billing-service|notification-service|document-service|utility-service|analytics-service|webhook-service"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High CPU usage on {{ $labels.job }}"
+          description: "CPU usage is {{ $value }}% on {{ $labels.job }}"
+
+      # Slow Database Queries
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile database query time is {{ $value }}s for {{ $labels.table }} table"
+
+      # Database Connection Pool High
+      - alert: DatabaseConnectionPoolHigh
+        expr: db_connection_pool_size{state="active"} / (db_connection_pool_size{state="active"} + db_connection_pool_size{state="idle"}) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "Database connection pool utilization high"
+          description: "Connection pool utilization is {{ $value | humanizePercentage }} for {{ $labels.database }}"
+
+      # Low Active Users Alert
+      - alert: LowActiveUsers
+        expr: active_users < 10
+        for: 15m
+        labels:
+          severity: info
+          category: business
+        annotations:
+          summary: "Low active users on {{ $labels.service }}"
+          description: "Only {{ $value }} active users on {{ $labels.service }}"
+
+      # High Payment Failure Rate
+      - alert: PaymentFailureRateHigh
+        expr: rate(payment_transactions_total{status="failed"}[5m]) / clamp_min(rate(payment_transactions_total[5m]), 1) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          category: business
+          service: payment-service
+        annotations:
+          summary: "Payment failure rate is high"
+          description: "Payment failure rate is {{ $value | humanizePercentage }}"
+
+      # Slow Payment Processing
+      - alert: PaymentProcessingSlow
+        expr: histogram_quantile(0.95, rate(payment_processing_duration_seconds_bucket[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          service: payment-service
+        annotations:
+          summary: "Payment processing is slow"
+          description: "95th percentile payment processing time is {{ $value }}s"
+
+      # High Event Bus Message Failures
+      - alert: EventBusMessageFailures
+        expr: rate(event_bus_messages_total{status="failed"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: messaging
+        annotations:
+          summary: "Event bus message failures detected"
+          description: "Message failure rate is {{ $value }} msg/s for {{ $labels.event_type }}"
+
+      # Saga Execution Failures
+      - alert: SagaExecutionFailures
+        expr: rate(saga_executions_total{status="failed"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          category: saga
+        annotations:
+          summary: "Saga execution failures detected"
+          description: "Saga failure rate is {{ $value }} ops/s for {{ $labels.saga_name }}"

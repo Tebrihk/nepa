@@ -1,0 +1,370 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Service Health Overview",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"user-service|payment-service|billing-service|notification-service|document-service|utility-service|analytics-service|webhook-service\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"]},
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "area"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
+          ]
+        }
+      }
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 2,
+      "title": "Response Time (p95)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "s", "label": "Response Time"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 3,
+      "title": "Response Time (p99)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "s", "label": "Response Time"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 4,
+      "title": "Request Rate",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[5m])) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "reqps", "label": "Requests/sec"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "id": 5,
+      "title": "Error Rate (%)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service) * 100",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "percent", "label": "Error Rate"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24},
+      "id": 6,
+      "title": "Memory Usage (RSS)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{job=~\"user-service|payment-service|billing-service|notification-service|document-service|utility-service|analytics-service|webhook-service\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "bytes", "label": "Memory"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24},
+      "id": 7,
+      "title": "CPU Usage (%)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=~\"user-service|payment-service|billing-service|notification-service|document-service|utility-service|analytics-service|webhook-service\"}[5m]) * 100",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "percent", "label": "CPU Usage"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24},
+      "id": 8,
+      "title": "Active Users",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "active_users",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "short", "label": "Users"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+      "id": 9,
+      "title": "Database Query Duration (p95)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(db_query_duration_seconds_bucket[5m])) by (le, service, table))",
+          "legendFormat": "{{service}} - {{table}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "s", "label": "Duration"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+      "id": 10,
+      "title": "Database Connection Pool",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "db_connection_pool_size{state=\"active\"}",
+          "legendFormat": "{{service}} - Active",
+          "refId": "A"
+        },
+        {
+          "expr": "db_connection_pool_size{state=\"idle\"}",
+          "legendFormat": "{{service}} - Idle",
+          "refId": "B"
+        }
+      ],
+      "yAxes": [
+        {"format": "short", "label": "Connections"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+      "id": 11,
+      "title": "Payment Transactions",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(payment_transactions_total[5m])",
+          "legendFormat": "{{service}} - {{status}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "ops", "label": "Transactions/sec"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+      "id": 12,
+      "title": "Payment Processing Duration (p95)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(payment_processing_duration_seconds_bucket[5m])) by (le, method))",
+          "legendFormat": "{{method}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "s", "label": "Duration"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 48},
+      "id": 13,
+      "title": "Bills Created (Total)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(bills_created_total) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"]},
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 48},
+      "id": 14,
+      "title": "Event Bus Messages (Rate)",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(event_bus_messages_total[5m])) by (event_type, service)",
+          "legendFormat": "{{service}} - {{event_type}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "msg/s", "label": "Messages/sec"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 48},
+      "id": 15,
+      "title": "Saga Executions",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(saga_executions_total[5m])) by (saga_name, status)",
+          "legendFormat": "{{saga_name}} - {{status}}",
+          "refId": "A"
+        }
+      ],
+      "yAxes": [
+        {"format": "ops", "label": "Executions/sec"},
+        {"format": "short", "show": false}
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 56},
+      "id": 16,
+      "title": "SLA Compliance",
+      "type": "table",
+      "targets": [
+        {
+          "expr": "avg_over_time(up[1h]) * 100",
+          "legendFormat": "{{job}} Availability (%)",
+          "refId": "A"
+        }
+      ],
+      "columns": [
+        {"text": "Service", "value": "job"},
+        {"text": "Availability (%)", "value": "Value"}
+      ],
+      "styles": [
+        {
+          "pattern": "Value",
+          "type": "number",
+          "unit": "percent",
+          "thresholds": [
+            {"color": "red", "value": 0},
+            {"color": "yellow", "value": 99},
+            {"color": "green", "value": 99.9}
+          ]
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": ["performance", "monitoring", "services"],
+  "templating": {
+    "list": [
+      {
+        "current": "",
+        "name": "service",
+        "options": [
+          {"text": "All", "value": ""},
+          {"text": "User Service", "value": "user-service"},
+          {"text": "Payment Service", "value": "payment-service"},
+          {"text": "Billing Service", "value": "billing-service"},
+          {"text": "Notification Service", "value": "notification-service"},
+          {"text": "Document Service", "value": "document-service"},
+          {"text": "Utility Service", "value": "utility-service"},
+          {"text": "Analytics Service", "value": "analytics-service"},
+          {"text": "Webhook Service", "value": "webhook-service"}
+        ],
+        "query": "user-service|payment-service|billing-service|notification-service|document-service|utility-service|analytics-service|webhook-service",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "Service Performance Overview",
+  "uid": "service-overview",
+  "version": 1
+}
