@@ -1,6 +1,7 @@
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { apiLimiter, ddosDetector, checkBlockedIP, ipRestriction, progressiveLimiter, authLimiter } from './middleware/rateLimiter';
+import { endpointRateLimiter, userRateLimiter, ipRateLimiter, getRateLimitStatus } from './middleware/apiRateLimiter';
 import { configureSecurity } from './middleware/security';
 import { apiKeyAuth } from './src/config/auth';
 // Temporarily comment out authentication middleware to get server running
@@ -120,6 +121,9 @@ app.use(abuseDetector);
 // 10. Setup rate limiting routes
 // Temporarily commented out to get server running
 // setupRateLimitRoutes(app);
+
+// 11. Rate limiting monitoring endpoint
+app.get('/api/monitoring/rate-limit', getRateLimitStatus);
 
 // 11. Audit Routes
 // app.use('/api/audit', auditRoutes);
