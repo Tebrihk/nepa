@@ -1,6 +1,7 @@
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { apiLimiter, ddosDetector, checkBlockedIP, ipRestriction, progressiveLimiter, authLimiter } from './middleware/rateLimiter';
+import { endpointRateLimiter, userRateLimiter, ipRateLimiter, getRateLimitStatus } from './middleware/apiRateLimiter';
 import { configureSecurity } from './middleware/security';
 import { apiKeyAuth } from './src/config/auth';
 import { authenticate, authorize, optionalAuth } from './middleware/authentication';
@@ -92,7 +93,12 @@ app.use('/api', sanitizeInput);
 // 6. Progressive Rate Limiting
 app.use('/api', progressiveLimiter);
 
-// 6. Audit Context Capture (before rate limiting to capture all requests)
+// 7. API Rate Limiting (Issue #269: per endpoint, per user, per IP)
+app.use('/api', ipRateLimiter);
+app.use('/api', userRateLimiter);
+app.use('/api', endpointRateLimiter);
+
+// 8. Audit Context Capture (before rate limiting to capture all requests)
 app.use('/api', captureAuditContext);
 
 // 7. Advanced rate limiting is applied by setupRateLimitRoutes(app)
@@ -105,6 +111,9 @@ app.use(abuseDetector);
 
 // 10. Setup rate limiting routes
 setupRateLimitRoutes(app);
+
+// 11. Rate limiting monitoring endpoint
+app.get('/api/monitoring/rate-limit', getRateLimitStatus);
 
 // 11. Audit Routes
 app.use('/api/audit', auditRoutes);
