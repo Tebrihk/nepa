@@ -1,30 +1,38 @@
 import { Request, Response, NextFunction } from 'express';
+import pino from 'pino';
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const logger = pino({
+  level: process.env.LOG_LEVEL || (isDevelopment ? 'debug' : 'info'),
+  transport: isDevelopment
+    ? {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          translateTime: 'HH:MM:ss Z',
+          ignore: 'pid,hostname',
+        },
+      }
+    : undefined,
+  timestamp: pino.stdTimeFunctions.isoTime,
+});
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(
-      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms - IP: ${req.ip}`
-    );
+    logger.info({
+      method: req.method,
+      url: req.originalUrl,
+      statusCode: res.statusCode,
+      duration,
+      ip: req.ip,
+    });
   });
 
   next();
 };
 
-// Simple logger instance for application logging
-export const logger = {
-  info: (message: string) => {
-    console.log(`[${new Date().toISOString()}] INFO: ${message}`);
-  },
-  error: (message: string) => {
-    console.error(`[${new Date().toISOString()}] ERROR: ${message}`);
-  },
-  warn: (message: string) => {
-    console.warn(`[${new Date().toISOString()}] WARN: ${message}`);
-  },
-  debug: (message: string) => {
-    console.debug(`[${new Date().toISOString()}] DEBUG: ${message}`);
-  },
-};
+export { logger };
